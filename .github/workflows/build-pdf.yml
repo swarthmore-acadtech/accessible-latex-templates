@@ -1,14 +1,16 @@
 # =====================================================================
 #  build-pdf.yml
 #  Builds every LaTeX document in the top level of the repository
-#  with LuaLaTeX. A .tex file counts as a document if it contains
-#  \documentclass; fragments pulled in with \input or \include are
-#  skipped automatically. Subfolders are not searched.
+#  with LuaLaTeX, then checks each PDF against PDF/UA-2 with veraPDF.
+#  A .tex file counts as a document if it contains \documentclass;
+#  fragments pulled in with \input or \include are skipped
+#  automatically. Subfolders are not searched.
 #
-#  - On every push to any branch: builds all the PDFs and saves them
-#    as a downloadable artifact on the workflow run.
-#  - When you publish a GitHub Release: builds all the PDFs and
-#    attaches them to that release.
+#  - On every push to any branch: builds and validates all the PDFs.
+#    The PDFs and the veraPDF reports are saved as downloadable
+#    artifacts on the workflow run.
+#  - When you publish a GitHub Release: does the same, then attaches
+#    the PDFs to the release, but only if every PDF passed veraPDF.
 #  - You can also run it by hand from the Actions tab.
 #
 #  Place this file in your repository at:
@@ -19,9 +21,16 @@ name: Build PDFs
 
 on:
   push:
+    branches: ['**']   # every branch; tag pushes don't start a second run
   release:
     types: [published]
   workflow_dispatch:
+
+env:
+  # veraPDF command-line validator, published by the veraPDF project.
+  # To keep results stable over time, you can pin a specific version
+  # instead of "latest" (see the tags at hub.docker.com/r/verapdf/cli).
+  VERAPDF_IMAGE: verapdf/cli:latest
 
 jobs:
   build:
@@ -83,7 +92,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: pdf-output
+          name: example-pdfs
           path: "*.pdf"
           if-no-files-found: warn
 
@@ -94,10 +103,81 @@ jobs:
           name: latex-log
           path: "*.log"
 
-  attach-to-release:
-    # Runs only when a GitHub Release is published.
-    if: github.event_name == 'release'
+  validate:
+    # Checks every built PDF against PDF/UA-2.
     needs: build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Download built PDFs
+        uses: actions/download-artifact@v4
+        with:
+          name: example-pdfs
+          path: pdfs
+
+      - name: Show veraPDF version
+        run: docker run --rm "$VERAPDF_IMAGE" --version
+
+      - name: Validate against PDF/UA-2 with veraPDF
+        shell: bash
+        run: |
+          shopt -s nullglob
+          mkdir -p reports
+
+          pdfs=(pdfs/*.pdf)
+          if [ ${#pdfs[@]} -eq 0 ]; then
+            echo "::error::No PDFs found to validate."
+            exit 1
+          fi
+
+          failed=()
+          for pdf in "${pdfs[@]}"; do
+            name=$(basename "$pdf" .pdf)
+            echo "::group::Validating $name.pdf"
+
+            # Machine-readable report, used to decide pass or fail.
+            docker run --rm -v "$PWD:/data" "$VERAPDF_IMAGE" \
+              --flavour ua2 --format mrr "/data/$pdf" \
+              > "reports/$name.xml" || true
+
+            # Human-readable report, for reading in a browser.
+            docker run --rm -v "$PWD:/data" "$VERAPDF_IMAGE" \
+              --flavour ua2 --format html "/data/$pdf" \
+              > "reports/$name.html" || true
+
+            # Pass only if veraPDF positively reports compliance.
+            # A missing or unreadable report counts as a failure.
+            if grep -q 'isCompliant="true"' "reports/$name.xml" \
+               && ! grep -q 'isCompliant="false"' "reports/$name.xml"; then
+              echo "PASS: $name.pdf conforms to PDF/UA-2"
+            else
+              failed+=("$name.pdf")
+              echo "::error file=$name.tex::$name.pdf does not conform to PDF/UA-2. Download the veraPDF reports artifact for details."
+            fi
+            echo "::endgroup::"
+          done
+
+          echo "Validated ${#pdfs[@]} PDF(s); ${#failed[@]} failed."
+          if [ ${#failed[@]} -gt 0 ]; then
+            printf 'Failed: %s\n' "${failed[@]}"
+            exit 1
+          fi
+
+      - name: Upload veraPDF reports
+        # Always saved, so you can read the details whether the
+        # check passed or failed.
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: verapdf-reports
+          path: reports/
+          if-no-files-found: warn
+
+  attach-to-release:
+    # Runs only when a GitHub Release is published, and only if every
+    # PDF built and passed veraPDF.
+    if: github.event_name == 'release'
+    needs: [build, validate]
     runs-on: ubuntu-latest
     permissions:
       contents: write   # needed to add files to the release
@@ -106,7 +186,7 @@ jobs:
       - name: Download built PDFs
         uses: actions/download-artifact@v4
         with:
-          name: pdf-output
+          name: example-pdfs
 
       - name: Attach PDFs to the release
         env:
