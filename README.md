@@ -4,7 +4,7 @@
 
 A LaTeX template for math course handouts that produces accessible PDFs. The output is a tagged PDF/UA-2 document with math encoded as MathML, so screen readers and other assistive technologies can read headings, lists, tables, figures, and equations correctly.
 
-**[Download the latest sample PDF](https://github.com/swarthmore-acadtech/accessible-latex-templates/releases/latest/download/accessible-handout-template.pdf)** · **[See all releases](https://github.com/swarthmore-acadtech/accessible-latex-templates/releases)**
+**[Download the latest sample PDF](https://github.com/swarthmore-acadtech/accessible-latex-templates/releases/latest/download/accessible-LaTeX-template.pdf)** · **[See all releases](https://github.com/swarthmore-acadtech/accessible-latex-templates/releases)**
 
 ## What the template provides
 
@@ -35,7 +35,7 @@ A LaTeX template for math course handouts that produces accessible PDFs. The out
 Download or clone this repository, then compile with:
 
 ```bash
-latexmk -lualatex accessible-handout-template.tex
+latexmk -lualatex accessible-LaTeX-template.tex
 ```
 
 ## Customizing the template
@@ -88,15 +88,15 @@ This project uses [semantic versioning](https://semver.org/), with tags like `v1
 - The **middle number** changes for additions that don't break existing handouts.
 - The **first number** changes when an update could break handouts built on an earlier version.
 
-The version and date also appear in the header comment of the template, and each release is described in [CHANGELOG.md](CHANGELOG.md).
+The version and date also appear in the header comment of the template, and each release's notes describe what changed. See [all releases](https://github.com/swarthmore-acadtech/accessible-latex-templates/releases).
 
 ## Repository contents
 
 | File | Purpose |
 | --- | --- |
-| `accessible-handout-template.tex` | The handout template |
+| `accessible-LaTeX-template.tex` | The handout template |
 | `.github/workflows/build-pdf.yml` | Builds the PDFs and attaches them to releases |
-| `CHANGELOG.md` | What changed in each version |
+| `LICENSE` | The Apache License 2.0 |
 | `README.md` | This file |
 
 ## Feedback and contributions
@@ -109,4 +109,4 @@ Caroline Larsen and Andrew Ruether
 
 ## License
 
-Add your chosen license here, for example [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) or [MIT](https://opensource.org/license/mit). Also add a matching `LICENSE` file to the repository, so others know how they may use and adapt the template.
+This project is licensed under the [Apache License 2.0](https://www.apache.org/licenses/LICENSE-2.0). See [LICENSE](LICENSE) for the full text.
