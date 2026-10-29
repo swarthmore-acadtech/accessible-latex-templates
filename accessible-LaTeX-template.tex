@@ -1,0 +1,200 @@
+% =====================================================================
+%  accessible-LaTeX-template.tex
+%  Template: PDF/UA-2 tagged PDF with MathML for course handouts
+%
+%  HOW TO USE
+%    1. Fill in the handout details in the "EDIT THESE" block bealow.
+%    2. Replace the placeholder sections, text, equations, table,
+%       and figure with your own content.
+%    3. Compile with LuaLaTeX (required for MathML generation).
+%    4. Check the result with veraPDF (PDF/UA-2 profile) and, if you
+%       can, listen to it with a screen reader.
+%
+%  More information available at https://kb.swarthmore.edu/wiki/Accessible_LaTeX
+%  Requires a recent TeX distribution (TeX Live 2025 or newer).
+%
+%  Lines marked [A11Y] indicate accessibility-related settings.
+% =====================================================================
+
+% [A11Y] Turns on tagging, sets the document language, and makes the
+% output a PDF/UA-2 file. Change "lang" if the handout is not in
+% US English (e.g. en-GB, es, fr).
+\DocumentMetadata{
+  lang          = en-US,
+  pdfversion    = 2.0,
+  pdfstandard   = ua-2,
+  tagging       = on,
+  tagging-setup = {math/setup = mathml-SE} % [A11Y] math as MathML
+}
+
+% [A11Y] 12pt text is easier to read on paper, where readers can't zoom.
+\documentclass[12pt]{article}
+
+% ---------------------------------------------------------------------
+%  EDIT THESE: handout details (used for both the visible title and
+%  the PDF metadata, so they always match)
+% ---------------------------------------------------------------------
+\newcommand{\HandoutTitle}{Handout Title}
+\newcommand{\HandoutAuthor}{Instructor Name}
+\newcommand{\HandoutCourse}{Course Number: Course Name}
+\newcommand{\HandoutDate}{Term Year}
+
+% ---------------------------------------------------------------------
+%  Packages
+%  Order matters: amsmath before unicode-math, hyperref near the end.
+% ---------------------------------------------------------------------
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath}
+\usepackage{amsthm}
+\usepackage{unicode-math}           % OpenType math font with Unicode mapping
+\setmainfont{Latin Modern Roman}    % change the text font here
+\setmathfont{Latin Modern Math}     % change the math font here
+\usepackage{graphicx}
+\usepackage{booktabs}               % clean table rules
+\usepackage{hyperref}
+
+% [A11Y] Title metadata is required by PDF/UA. Links are shown as
+% colored text with strong contrast instead of boxes.
+\hypersetup{
+  pdftitle           = {\HandoutTitle},
+  pdfauthor          = {\HandoutAuthor},
+  pdfdisplaydoctitle = true,
+  colorlinks         = true,
+  linkcolor          = blue!60!black,
+  urlcolor           = blue!60!black,
+  citecolor          = blue!60!black
+}
+
+% ---------------------------------------------------------------------
+%  Theorem-style environments (rename or remove as needed)
+% ---------------------------------------------------------------------
+\theoremstyle{definition}
+\newtheorem{definition}{Definition}[section]
+\newtheorem{example}[definition]{Example}
+\theoremstyle{plain}
+\newtheorem{theorem}[definition]{Theorem}
+
+% ---------------------------------------------------------------------
+\title{\HandoutTitle}
+\author{\HandoutAuthor\\ \HandoutCourse}
+\date{\HandoutDate}
+% ---------------------------------------------------------------------
+
+\begin{document}
+
+% [A11Y] The title becomes the top-level heading; sections sit under it.
+\maketitle
+
+% =====================================================================
+\section{Section Title}
+% =====================================================================
+
+Introductory text for this section. Briefly state what the reader will
+learn and define any notation before using it, so that someone
+listening with a screen reader has the context they need.
+
+\begin{definition}
+  State a definition here. Use \emph{emphasis} for the term being
+  defined.
+\end{definition}
+
+\subsection{Subsection Title}
+
+Text for this subsection. A displayed, numbered equation looks like
+this (replace the placeholder with your own):
+\begin{equation}\label{eq:first}
+  y = f(x)
+\end{equation}
+
+% [A11Y] Refer to equations by label so readers get a working link.
+Refer back to it as Equation~\eqref{eq:first}. Inline math is written
+like this: \(f(x)\).
+
+\subsection{Subsection Title}
+
+For multi-line work, use \texttt{align}:
+\begin{align}
+  \text{left side} &= \text{first step} \label{eq:step1} \\
+                   &= \text{second step} \label{eq:step2}
+\end{align}
+
+A bulleted list:
+\begin{itemize}
+  \item First point.
+  \item Second point.
+  \item Third point.
+\end{itemize}
+
+% =====================================================================
+\section{Section Title}
+% =====================================================================
+
+\begin{theorem}
+  State a theorem here.
+\end{theorem}
+
+\begin{proof}
+  Write the proof here.
+\end{proof}
+
+\begin{example}
+  Work through an example here.
+\end{example}
+
+\subsection{Table}
+
+Table~\ref{tab:placeholder} shows how to lay out a table.
+% [A11Y] Introduce every table in the text before it appears.
+
+\begin{table}[htbp]
+  % [A11Y] Marks the first row as column headers for screen readers.
+  % Change the number if your table has more than one header row.
+  \tagpdfsetup{table/header-rows={1}}
+  \centering
+  % [A11Y] Captions go above tables and should say what the table shows.
+  \caption{Describe what this table shows}
+  \label{tab:placeholder}
+  % [A11Y] Keep tables simple: one header row, no merged cells, and
+  % narrow enough to fit the page. Put math in \( \) in every cell,
+  % headers included.
+  \begin{tabular}{lccc}
+    \toprule
+    Header 1 & Header 2 & Header 3 & Header 4 \\
+    \midrule
+    Row label & Entry & Entry & Entry \\
+    Row label & Entry & Entry & Entry \\
+    Row label & Entry & Entry & Entry \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\subsection{Figure}
+
+Figure~\ref{fig:placeholder} shows how to include an image.
+
+\begin{figure}[htbp]
+  \centering
+  % [A11Y] Every image needs alt text. Describe what the reader should
+  % take away, not just what the image is. For a graph, say
+  % something like: "Parabola opening upward, crossing the x-axis at
+  % x = 1 and x = 2, with its lowest point at x = 1.5."
+  % "example-image" is a placeholder bundled with TeX Live; replace
+  % it with your own file name.
+  \includegraphics[width=0.6\textwidth,
+                   alt={Replace with a description of the image}]
+                  {example-image}
+  \caption{Describe what this figure shows}
+  \label{fig:placeholder}
+\end{figure}
+
+% =====================================================================
+\section{Exercises}
+% =====================================================================
+
+\begin{enumerate}
+  \item First exercise.
+  \item Second exercise.
+  \item Third exercise.
+\end{enumerate}
+
+\end{document}
