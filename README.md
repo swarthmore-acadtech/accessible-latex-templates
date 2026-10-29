@@ -1,6 +1,6 @@
 # Accessible LaTeX Handout Template
 
-[![Build PDFs](https://github.com/swarthmore-acadtech/accessible-latex-templates/actions/workflows/build-pdf.yml/badge.svg)](https://github.com/swarthmore-acadtech/accessible-latex-templates/actions/workflows/build-pdf.yml)
+[![Build PDFs](https://github.com/YOUR-USERNAME/YOUR-REPO/actions/workflows/build-pdf.yml/badge.svg)](https://github.com/YOUR-USERNAME/YOUR-REPO/actions/workflows/build-pdf.yml)
 
 A LaTeX template for math course handouts that produces accessible PDFs. The output is a tagged PDF/UA-2 document with math encoded as MathML, so screen readers and other assistive technologies can read headings, lists, tables, figures, and equations correctly.
 
@@ -62,17 +62,23 @@ When adding your own content:
 A PDF that compiles is not necessarily accessible. Before sharing a handout:
 
 1. **Confirm the PDF is tagged.** In Acrobat Reader, open **File → Properties** and check that **Tagged PDF** says Yes.
-2. **Validate it.** Run the PDF through [veraPDF](https://verapdf.org/) using the PDF/UA-2 profile.
+2. **Validate it.** Run the PDF through [veraPDF](https://verapdf.org/) using the PDF/UA-2 profile. For files in this repository, this happens automatically on every commit (see [Automated builds](#automated-builds)); if you're working on your own copy elsewhere, run veraPDF yourself.
 3. **Listen to it.** If you can, read it with a screen reader. Support for MathML in PDFs varies between PDF viewers and screen readers, so a file that passes validation can still read poorly in some combinations.
 
 ## Automated builds
 
-A GitHub Actions workflow (`.github/workflows/build-pdf.yml`) compiles every top-level `.tex` file that contains `\documentclass`:
+A GitHub Actions workflow (`.github/workflows/build-pdf.yml`) compiles every top-level `.tex` file that contains `\documentclass`, then checks each PDF against PDF/UA-2 with [veraPDF](https://verapdf.org/):
 
-- **On every commit to any branch,** it builds the PDFs and saves them as a downloadable artifact on the workflow run. Open the run in the **Actions** tab and look under **Artifacts**.
-- **When a release is published,** it builds the PDFs and attaches them to the release.
+- **On every commit to any branch,** it builds and validates the PDFs. Open the run in the **Actions** tab and look under **Artifacts** for the PDFs (`handout-pdfs`) and the validation reports (`verapdf-reports`).
+- **When a release is published,** it does the same, then attaches the PDFs to the release. PDFs are attached only if every document built and passed veraPDF, so a non-conforming handout can't ship in a release.
 
-If a build fails, the workflow uploads the LaTeX log so the error can be found.
+If a build fails, the workflow uploads the LaTeX log (`latex-log`) so the error can be found.
+
+### Reading the veraPDF reports
+
+The `verapdf-reports` artifact contains two reports for each PDF. Open the `.html` report in a browser: it lists each rule that failed, with a description. The `.xml` report is the machine-readable version the workflow uses to decide pass or fail.
+
+A failed check doesn't always mean a problem with your content. LaTeX's tagging support for some packages is still maturing, so a few failures may come from the tagging code itself. If you're unsure, [open an issue](https://github.com/YOUR-USERNAME/YOUR-REPO/issues) and include the HTML report.
 
 ## Versioning
 
