@@ -1,10 +1,10 @@
 # Accessible LaTeX Handout Template
 
-[![Build PDFs](https://github.com/YOUR-USERNAME/YOUR-REPO/actions/workflows/build-pdf.yml/badge.svg)](https://github.com/YOUR-USERNAME/YOUR-REPO/actions/workflows/build-pdf.yml)
+[![Build PDFs](https://github.com/swarthmore-acadtech/accessible-latex-templates/actions/workflows/build-pdf.yml/badge.svg)](https://github.com/swarthmore-acadtech/accessible-latex-templates/actions/workflows/build-pdf.yml)
 
 A LaTeX template for math course handouts that produces accessible PDFs. The output is a tagged PDF/UA-2 document with math encoded as MathML, so screen readers and other assistive technologies can read headings, lists, tables, figures, and equations correctly.
 
-**[Download the latest sample PDF](https://github.com/YOUR-USERNAME/YOUR-REPO/releases/latest/download/accessible-handout-template.pdf)** · **[See all releases](https://github.com/YOUR-USERNAME/YOUR-REPO/releases)**
+**[Download the latest sample PDF](https://github.com/swarthmore-acadtech/accessible-latex-templates/releases/latest/download/accessible-handout-template.pdf)** · **[See all releases](https://github.com/swarthmore-acadtech/accessible-latex-templates/releases)**
 
 ## What the template provides
 
@@ -25,7 +25,7 @@ A LaTeX template for math course handouts that produces accessible PDFs. The out
 
 ### In Overleaf
 
-1. Download the source code zip from the [latest release](https://github.com/YOUR-USERNAME/YOUR-REPO/releases/latest).
+1. Download the source code zip from the [latest release](https://github.com/swarthmore-acadtech/accessible-latex-templates/releases/latest).
 2. In Overleaf, choose **New Project → Upload Project** and select the zip.
 3. Open **Menu** in the project and set **Compiler** to **LuaLaTeX** and **TeX Live version** to 2025 or newer.
 4. Recompile.
@@ -78,7 +78,7 @@ If a build fails, the workflow uploads the LaTeX log (`latex-log`) so the error 
 
 The `verapdf-reports` artifact contains two reports for each PDF. Open the `.html` report in a browser: it lists each rule that failed, with a description. The `.xml` report is the machine-readable version the workflow uses to decide pass or fail.
 
-A failed check doesn't always mean a problem with your content. LaTeX's tagging support for some packages is still maturing, so a few failures may come from the tagging code itself. If you're unsure, [open an issue](https://github.com/YOUR-USERNAME/YOUR-REPO/issues) and include the HTML report.
+A failed check doesn't always mean a problem with your content. LaTeX's tagging support for some packages is still maturing, so a few failures may come from the tagging code itself. If you're unsure, [open an issue](https://github.com/swarthmore-acadtech/accessible-latex-templates/issues) and include the HTML report.
 
 ## Versioning
 
@@ -101,7 +101,7 @@ The version and date also appear in the header comment of the template, and each
 
 ## Feedback and contributions
 
-Questions, problems, and suggestions are welcome. Please [open an issue](https://github.com/YOUR-USERNAME/YOUR-REPO/issues) describing what you found, including the template version and, for build problems, the error from the LaTeX log.
+Questions, problems, and suggestions are welcome. Please [open an issue](https://github.com/swarthmore-acadtech/accessible-latex-templates/issues) describing what you found, including the template version and, for build problems, the error from the LaTeX log.
 
 ## Authors
 
