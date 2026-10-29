@@ -1,0 +1,117 @@
+# =====================================================================
+#  build-pdf.yml
+#  Builds every LaTeX document in the top level of the repository
+#  with LuaLaTeX. A .tex file counts as a document if it contains
+#  \documentclass; fragments pulled in with \input or \include are
+#  skipped automatically. Subfolders are not searched.
+#
+#  - On every push to any branch: builds all the PDFs and saves them
+#    as a downloadable artifact on the workflow run.
+#  - When you publish a GitHub Release: builds all the PDFs and
+#    attaches them to that release.
+#  - You can also run it by hand from the Actions tab.
+#
+#  Place this file in your repository at:
+#    .github/workflows/build-pdf.yml
+# =====================================================================
+
+name: Build PDFs
+
+on:
+  push:
+  release:
+    types: [published]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    # Official TeX Live image: the latest full TeX Live release,
+    # which includes LuaLaTeX, Latin Modern, and the tagging code.
+    container: texlive/texlive:latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Show TeX Live version
+        run: tex --version | head -n 1
+
+      - name: Compile all top-level documents with LuaLaTeX
+        shell: bash
+        run: |
+          shopt -s nullglob
+
+          # Collect top-level .tex files that are full documents.
+          docs=()
+          for f in *.tex; do
+            if grep -q '^[[:space:]]*\\documentclass' "$f"; then
+              docs+=("$f")
+            fi
+          done
+
+          if [ ${#docs[@]} -eq 0 ]; then
+            echo "::error::No .tex files with \\documentclass found in the top level."
+            exit 1
+          fi
+
+          # Build each one. Keep going after a failure so every
+          # document gets a chance to build, then report at the end.
+          failed=()
+          for f in "${docs[@]}"; do
+            echo "::group::Building $f"
+            if ! latexmk -lualatex \
+                         -interaction=nonstopmode \
+                         -halt-on-error \
+                         -file-line-error \
+                         "$f"; then
+              failed+=("$f")
+              echo "::error file=$f::LaTeX build failed for $f"
+            fi
+            echo "::endgroup::"
+          done
+
+          echo "Built ${#docs[@]} document(s); ${#failed[@]} failed."
+          if [ ${#failed[@]} -gt 0 ]; then
+            printf 'Failed: %s\n' "${failed[@]}"
+            exit 1
+          fi
+
+      - name: Upload PDFs as workflow artifact
+        # Runs even if some builds failed, so the successful PDFs
+        # are still available to download.
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: handout-pdfs
+          path: "*.pdf"
+          if-no-files-found: warn
+
+      - name: Upload log if the build failed
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: latex-log
+          path: "*.log"
+
+  attach-to-release:
+    # Runs only when a GitHub Release is published.
+    if: github.event_name == 'release'
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write   # needed to add files to the release
+
+    steps:
+      - name: Download built PDFs
+        uses: actions/download-artifact@v4
+        with:
+          name: pdf-output
+
+      - name: Attach PDFs to the release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release upload "${{ github.event.release.tag_name }}" *.pdf \
+            --repo "$GITHUB_REPOSITORY" \
+            --clobber
